@@ -1,14 +1,14 @@
-#ifdef _APPLE_
-#include <GLUT/glut.h>
-#else
-#include <windows.h>
-#include <GL/glut.h>
-#include <iostream>
-#endif
+#include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <windows.h>
+#ifdef APPLE
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#include <iostream>
+#endif
 
 
 
@@ -59,22 +59,17 @@ void esfera()
 
 static void display(void)
 {
-    glClear(GL_COLOR_BUFFER_BIT);//limpia la pantalla
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glMatrixMode(GL_PROJECTION);
-    gluPerspective(45.0, ancho/alto, 0.1, 100.0); // 1200/800 = 1.5 (proporcion de tamaño de la ventana)
-
-
-
+    gluPerspective(45.0, ancho/alto, 0.1, 100.0);
     gluLookAt(camarax,0,camaraz, camarax,0,camaraz-10,    0.0,    1,  0);
 
-    piso();
     esfera();
+    piso();
 
     glLoadIdentity();
-
-
-    glFlush();//refresca el buffer
+    glFlush();
 }
 
 void teclasEspeciales(int key, int x, int y)
@@ -109,7 +104,7 @@ int main(int argc, char *argv[])
     glutDisplayFunc(display);
     glutSpecialFunc(teclasEspeciales);
 
+    glEnable(GL_DEPTH_TEST);
 
-    //glEnable(GL_DEPTH_TEST);
     glutMainLoop();
 }
