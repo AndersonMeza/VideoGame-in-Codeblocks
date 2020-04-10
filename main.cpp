@@ -12,7 +12,7 @@
 
 
 
-double ancho=1500, alto=800;
+double ancho=1550, alto=800;
 double objeto1x=0,objeto1z=-7,objetoy=0.55;
 double objeto2x=0,objeto2z=-53;
 double angulogiro1=0;
