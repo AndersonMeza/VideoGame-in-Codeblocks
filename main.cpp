@@ -15,7 +15,7 @@
 double ancho=1200, alto=700;
 double objetox=0,objetoz=-7,objetoy=0.55;
 double angulogiro=0;
-double distancia=5;
+double distancia=2;
 double PI = 3.14159265358979323846;
 
 
@@ -89,7 +89,7 @@ static void display(void)
     gluPerspective(50, ancho/alto, 0.1, 100.0);
     double distancia_camarax=sin(angulogiro)*distancia;
     double distancia_camaraz=cos(angulogiro)*distancia;
-    gluLookAt(objetox+distancia_camarax,objetoy+0.45,objetoz+distancia_camaraz, objetox,objetoy,objetoz,    0,  1,  0);
+    gluLookAt(objetox+distancia_camarax,objetoy+0.45,objetoz+distancia_camaraz, objetox,objetoy,objetoz,0,1,0);
     esfera();
     piso();
     paredes();
@@ -104,11 +104,11 @@ void teclasCamara(unsigned char key, int x, int y)
     switch (key) {
         case 'd' :
         case 'D' :
-            angulogiro+=15*(PI/180);
+            angulogiro-=15*(PI/180);
             break;
         case 'a' :
         case 'A' :
-            angulogiro-=15*(PI/180);
+            angulogiro+=15*(PI/180);
             break;
     }
     display();
@@ -118,16 +118,20 @@ void teclasEspeciales(int key, int x, int y)
 {
     switch (key) {
         case GLUT_KEY_UP :
-            objetoz-=0.5;
+            objetoz-=cos(angulogiro)*0.5;
+            objetox-=sin(angulogiro)*0.5;
             break;
         case GLUT_KEY_DOWN :
-            objetoz+=0.5;
+            objetoz+=cos(angulogiro)*0.5;
+            objetox+=sin(angulogiro)*0.5;
             break;
         case GLUT_KEY_LEFT :
-            objetox-=0.5;
+            objetox-=cos(angulogiro)*0.5;
+            objetoz+=sin(angulogiro)*0.5;
             break;
         case GLUT_KEY_RIGHT :
-            objetox+=0.5;
+            objetox+=cos(angulogiro)*0.5;
+            objetoz-=sin(angulogiro)*0.5;
             break;
     }
     display();
@@ -146,6 +150,7 @@ int main(int argc, char *argv[])
     glutDisplayFunc(display);
     glutSpecialFunc(teclasEspeciales);
     glutKeyboardFunc(teclasCamara);
+    //glutIdleFunc();
 
     glEnable(GL_DEPTH_TEST);
 
