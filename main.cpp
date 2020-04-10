@@ -13,8 +13,10 @@
 
 
 double ancho=1200, alto=700;
-double camarax=0,camaraz=0;
-double girocamarax = camarax, gorocamaraz=camaraz-10;
+double objetox=0,objetoz=-7,objetoy=0.55;
+double angulogiro=0;
+double distancia=10;
+double PI = 3.14159265358979323846;
 
 
 
@@ -45,7 +47,7 @@ void esfera()
 {
     glPushMatrix();
     glColor3d(1,0,0);
-    glTranslated(camarax,0.55,camaraz-7);
+    glTranslated(objetox,objetoy,objetoz);
     glRotated(0,0,0,0);
 
     glPushMatrix();
@@ -85,11 +87,13 @@ static void display(void)
     glMatrixMode(GL_MODELVIEW);
     glMatrixMode(GL_PROJECTION);
     gluPerspective(50, ancho/alto, 0.1, 100.0);
-    gluLookAt(camarax,1,camaraz, camarax,0,camaraz-10,    0.0,    1,  0);
-
+    double distancia_camarax=sin(angulogiro)*distancia;
+    double distancia_camaraz=cos(angulogiro)*distancia;
+    gluLookAt(objetox+distancia_camarax,1,objetoz+distancia_camaraz, objetox,objetoy,objetoz,    0,  1,  0);
     esfera();
     piso();
     paredes();
+
 
     glLoadIdentity();
     glFlush();
@@ -97,23 +101,33 @@ static void display(void)
 
 void teclasCamara(unsigned char key, int x, int y)
 {
-
+    switch (key) {
+        case 'd' :
+        case 'D' :
+            angulogiro+=15*(PI/180);
+            break;
+        case 'a' :
+        case 'A' :
+            angulogiro-=15*(PI/180);
+            break;
+    }
+    display();
 }
 
 void teclasEspeciales(int key, int x, int y)
 {
     switch (key) {
         case GLUT_KEY_UP :
-            camaraz-=0.5;
+            objetoz-=0.5;
             break;
         case GLUT_KEY_DOWN :
-            camaraz+=0.5;
+            objetoz+=0.5;
             break;
         case GLUT_KEY_LEFT :
-            camarax-=0.5;
+            objetox-=0.5;
             break;
         case GLUT_KEY_RIGHT :
-            camarax+=0.5;
+            objetox+=0.5;
             break;
     }
     display();
