@@ -2,4 +2,5 @@
 *.cbp
 *.depend
 *.layout
+*.docx
 !.cpp
