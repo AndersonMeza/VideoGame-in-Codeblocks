@@ -11,6 +11,12 @@
 #endif
 
 
+bool mueve1_izq=false,mueve1_der=false,mueve1_arr=false,mueve1_baj=false;
+bool camara1_izq=false,camara1_der=false;
+bool mueve2_izq=false,mueve2_der=false,mueve2_arr=false,mueve2_baj=false;
+bool camara2_izq=false,camara2_der=false;
+
+
 
 double ancho=1550, alto=800;
 double objeto1x=0,objeto1z=-7,objetoy=0.55;
@@ -18,7 +24,11 @@ double objeto2x=0,objeto2z=-53;
 double angulogiro1=0;
 double angulogiro2=0;
 double distancia=5;
+double velocidad_camara=0.45;
+double velocidad_movimiento=0.05;
 double PI = 3.14159265358979323846;
+
+
 
 
 
@@ -135,69 +145,201 @@ static void display(void)
     glFlush();
 }
 
+void Movimiento()
+{
+    if(mueve1_arr)
+    {
+        objeto1z-=cos(angulogiro1)*velocidad_movimiento;
+        objeto1x-=sin(angulogiro1)*velocidad_movimiento;
+    }
+    if(mueve1_baj)
+    {
+        objeto1z+=cos(angulogiro1)*velocidad_movimiento;
+        objeto1x+=sin(angulogiro1)*velocidad_movimiento;
+    }
+    if(mueve1_izq)
+    {
+        objeto1x-=cos(angulogiro1)*velocidad_movimiento;
+        objeto1z+=sin(angulogiro1)*velocidad_movimiento;
+    }
+    if(mueve1_der)
+    {
+        objeto1x+=cos(angulogiro1)*velocidad_movimiento;
+        objeto1z-=sin(angulogiro1)*velocidad_movimiento;
+    }
+    if(mueve2_arr)
+    {
+        objeto2z+=cos(angulogiro2)*velocidad_movimiento;
+        objeto2x-=sin(angulogiro2)*velocidad_movimiento;
+    }
+    if(mueve2_baj)
+    {
+        objeto2z-=cos(angulogiro2)*velocidad_movimiento;
+        objeto2x+=sin(angulogiro2)*velocidad_movimiento;
+    }
+    if(mueve2_izq)
+    {
+        objeto2x+=cos(angulogiro2)*velocidad_movimiento;
+        objeto2z+=sin(angulogiro2)*velocidad_movimiento;
+    }
+    if(mueve2_der)
+    {
+        objeto2x-=cos(angulogiro2)*velocidad_movimiento;
+        objeto2z-=sin(angulogiro2)*velocidad_movimiento;
+    }
+    if(camara1_der)
+    {
+        angulogiro1+=velocidad_camara*(PI/180);
+    }
+    if(camara1_izq)
+    {
+        angulogiro1-=velocidad_camara*(PI/180);
+    }
+    if(camara2_der)
+    {
+        angulogiro2+=velocidad_camara*(PI/180);
+    }
+    if(camara2_izq)
+    {
+        angulogiro2-=velocidad_camara*(PI/180);
+    }
+
+    display();
+}
+
 void teclasCamara(unsigned char key, int x, int y)
 {
     switch (key) {
         case 'd' :
         case 'D' :
-            angulogiro1-=15*(PI/180);
+            camara1_izq=false;
+            camara1_der=true;
             break;
+
         case 'a' :
         case 'A' :
-            angulogiro1+=15*(PI/180);
+            camara1_der=false;
+            camara1_izq=true;
             break;
+
         case 'q' :
         case 'Q' :
-            angulogiro2-=15*(PI/180);
+            camara2_der=false;
+            camara2_izq=true;
             break;
+
         case 'e' :
         case 'E' :
-            angulogiro2+=15*(PI/180);
+            camara2_izq=false;
+            camara2_der=true;
             break;
+
         case '8' :
-            objeto2z+=cos(angulogiro2)*0.5;
-            objeto2x-=sin(angulogiro2)*0.5;
+            mueve2_baj=false;
+            mueve2_arr=true;
             break;
+
         case '5' :
-            objeto2z-=cos(angulogiro2)*0.5;
-            objeto2x+=sin(angulogiro2)*0.5;
+            mueve2_arr=false;
+            mueve2_baj=true;
             break;
+
         case '4' :
-            objeto2x+=cos(angulogiro2)*0.5;
-            objeto2z+=sin(angulogiro2)*0.5;
+            mueve2_der=false;
+            mueve2_izq=true;
             break;
+
         case '6' :
-            objeto2x-=cos(angulogiro2)*0.5;
-            objeto2z-=sin(angulogiro2)*0.5;
+            mueve2_izq=false;
+            mueve2_der=true;
             break;
     }
-    display();
+    Movimiento();
 }
 
 void teclasEspeciales(int key, int x, int y)
 {
     switch (key) {
         case GLUT_KEY_UP :
-            objeto1z-=cos(angulogiro1)*0.5;
-            objeto1x-=sin(angulogiro1)*0.5;
+            mueve1_baj=false;
+            mueve1_arr=true;
             break;
         case GLUT_KEY_DOWN :
-            objeto1z+=cos(angulogiro1)*0.5;
-            objeto1x+=sin(angulogiro1)*0.5;
+            mueve1_arr=false;
+            mueve1_baj=true;
             break;
         case GLUT_KEY_LEFT :
-            objeto1x-=cos(angulogiro1)*0.5;
-            objeto1z+=sin(angulogiro1)*0.5;
+            mueve1_der=false;
+            mueve1_izq=true;
             break;
         case GLUT_KEY_RIGHT :
-            objeto1x+=cos(angulogiro1)*0.5;
-            objeto1z-=sin(angulogiro1)*0.5;
+            mueve1_izq=false;
+            mueve1_der=true;
             break;
     }
-    display();
+    Movimiento();
 }
 
+void teclasCamara2(unsigned char key, int x, int y)
+{
+    switch (key) {
+        case 'd' :
+        case 'D' :
+            camara1_der=false;
+            break;
 
+        case 'a' :
+        case 'A' :
+            camara1_izq=false;
+            break;
+
+        case 'q' :
+        case 'Q' :
+            camara2_izq=false;
+            break;
+
+        case 'e' :
+        case 'E' :
+            camara2_der=false;
+            break;
+
+        case '8' :
+            mueve2_arr=false;
+            break;
+
+        case '5' :
+            mueve2_baj=false;
+            break;
+
+        case '4' :
+            mueve2_izq=false;
+            break;
+
+        case '6' :
+            mueve2_der=false;
+            break;
+    }
+    Movimiento();
+}
+
+void teclasEspeciales2(int key, int x, int y)
+{
+    switch (key) {
+        case GLUT_KEY_UP :
+            mueve1_arr=false;
+            break;
+        case GLUT_KEY_DOWN :
+            mueve1_baj=false;
+            break;
+        case GLUT_KEY_LEFT :
+            mueve1_izq=false;
+            break;
+        case GLUT_KEY_RIGHT :
+            mueve1_der=false;
+            break;
+    }
+    Movimiento();
+}
 
 int main(int argc, char *argv[])
 {
@@ -208,9 +350,12 @@ int main(int argc, char *argv[])
     glutCreateWindow("Figura 3d");
     glClearColor(0,0.7,1,0);
     glutDisplayFunc(display);
+
     glutSpecialFunc(teclasEspeciales);
+    glutSpecialUpFunc(teclasEspeciales2);
     glutKeyboardFunc(teclasCamara);
-    //glutIdleFunc();
+    glutKeyboardUpFunc(teclasCamara2);
+    glutIdleFunc(Movimiento);
 
     glEnable(GL_DEPTH_TEST);
 
