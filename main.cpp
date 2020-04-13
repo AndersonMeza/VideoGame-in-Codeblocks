@@ -15,6 +15,8 @@ bool mueve1_izq=false,mueve1_der=false,mueve1_arr=false,mueve1_baj=false;
 bool camara1_izq=false,camara1_der=false;
 bool mueve2_izq=false,mueve2_der=false,mueve2_arr=false,mueve2_baj=false;
 bool camara2_izq=false,camara2_der=false;
+bool herida1=false,herida2=false;
+bool dispara1=false,dispara2=false;
 
 
 double ancho=1550, alto=800;
@@ -23,11 +25,54 @@ double objeto2x=0,objeto2z=-53;
 double angulogiro1=0;
 double angulogiro2=0;
 double distancia=0.1;
-double alcance_bala=50;
+double alcance_bala=20;
 double velocidad_camara=0.20;
 double velocidad_movimiento=0.05;
 double PI = 3.14159265358979323846;
 
+
+static void disparo (double posx,double posy,double posz)
+{
+
+    glPushMatrix();
+    glColor3f(1,1,0);
+    glTranslatef(posx, posy, posz);
+    glutSolidCone(0.05,0.05,50,50);
+    glPopMatrix();
+}
+
+static void herido(double atacantex,double atacantez, double victimax,double victimaz)
+{
+    //bool esta_herido=false;
+
+   /* for(double i=objex-0.39;i>objez-alcance_bala;i-=0.01)
+    {
+        for(double j=-i/21.74;j<i/21.74;j+=0.01)
+        {
+            float xDistance = j - perx;
+            float yDistance = i - perz;
+            if(sqrt(pow(xDistance, 2) + pow(yDistance, 2)) <0.5)
+            {
+                esta_herido=true;
+                break;
+            }
+        }
+    }*/
+
+
+
+    glPushMatrix();
+    glColor3f(1,1,0);
+    glTranslatef(atacantex, 0.2, atacantez);
+    glBegin(GL_QUADS);
+    glVertex3d(-0.03,0.05,-0.39);
+    glVertex3d(+0.03,0.05,-0.39);
+    glVertex3d(alcance_bala/21.74,0.05,-alcance_bala);
+    glVertex3d(-alcance_bala/21.74,0.05,-alcance_bala);
+    glEnd();
+    glPopMatrix();
+
+}
 
 static void muneco2(void)
 {
@@ -236,22 +281,13 @@ static void muneco2(void)
     glutSolidCube(0.4);
     glPopMatrix();
 
+    if(dispara2)
+    {
+            disparo(0,0.25,-0.43);
+    }
+
     glPopMatrix();
 
-}
-
-static void dibujo(void)
-{
-    glPushMatrix();
-    glColor3f(1,1,0);
-    glTranslatef(0, 0.2, 0);
-    glBegin(GL_QUADS);
-    glVertex3d(-0.03,0.05,-0.39);
-    glVertex3d(0.03,0.05,-0.39);
-    glVertex3d(alcance_bala/21.74,0.05,-alcance_bala);
-    glVertex3d(-alcance_bala/21.74,0.05,-alcance_bala);
-    glEnd();
-    glPopMatrix();
 }
 
 static void muneco1(void)
@@ -461,11 +497,16 @@ static void muneco1(void)
     glutSolidCube(0.4);
     glPopMatrix();
 
-    dibujo();
+    if(dispara1)
+    {
+            disparo(0,0.25,-0.43);
+    }
+
 
     glPopMatrix();
 
 }
+
 static void brazos1(void)
 {
     glPushMatrix();
@@ -523,18 +564,10 @@ static void brazos1(void)
     glutSolidCube(0.4);
     glPopMatrix();
 
-    glPushMatrix();
-    glColor3f(0.1,0.1,0.1);
-    glTranslatef(0, 0.2, -0.3);
-    glRotated(90,0,1,0);
-    glScalef(0.15, 0.15, 0.12);
-    glutWireCube(0.4);
-    glutSolidCube(0.4);
-    glPopMatrix();
-
-    //zona disparo
-
-    dibujo();
+    if(dispara1)
+    {
+        disparo(0,0.25,-0.43);
+    }
 
     glPopMatrix();
 
@@ -605,6 +638,11 @@ static void brazos2(void)
     glutSolidCube(0.4);
     glPopMatrix();
 
+    if(dispara2)
+    {
+            disparo(0,0.25,-0.43);
+    }
+
     glPopMatrix();
 
 }
@@ -657,7 +695,6 @@ void arbol1()
 
 
 }
-
 
 void arbol2()
 {
@@ -726,7 +763,6 @@ void piso()
     glPopMatrix();
 
 }
-
 
 void paredes()
 {
@@ -875,6 +911,15 @@ void teclasCamara(unsigned char key, int x, int y)
             camara2_der=true;
             break;
 
+        case 's' :
+        case 'S' :
+            dispara1=true;
+            break;
+
+        case 'W' :
+        case 'w' :
+            dispara2=true;
+            break;
 
         case '8' :
             mueve2_baj=false;
@@ -944,7 +989,15 @@ void teclasCamara2(unsigned char key, int x, int y)
         case 'E' :
             camara2_der=false;
             break;
+        case 's' :
+        case 'S' :
+            dispara1=false;
+            break;
 
+        case 'W' :
+        case 'w' :
+            dispara2=false;
+            break;
 
 
         case '8' :
