@@ -17,9 +17,10 @@ bool mueve1_izq=false,mueve1_der=false,mueve1_arr=false,mueve1_baj=false;
 bool camara1_izq=false,camara1_der=false;
 bool mueve2_izq=false,mueve2_der=false,mueve2_arr=false,mueve2_baj=false;
 bool camara2_izq=false,camara2_der=false;
-bool herida1=false,herida2=false;
+bool muerto1=false,muerto2=false;
 bool dispara1=false,dispara2=false;
 
+int herido1=0,herido2=0;
 int vida1=5,kills1=0;
 int vida2=5,kills2=0;
 double mousey=0,mousex=0;
@@ -95,6 +96,64 @@ void imprimir_vida(int vidas, int kills)
 
 
 }
+
+void imprimir_ganador(void)
+{
+    glLoadIdentity();
+
+    static char label[100];
+    static char arr[10][50] = {"GANADOR","PERDEDOR"};
+
+
+    //CABELLO 1
+    glPushMatrix();
+    glColor3f(0, 0, 0);
+    sprintf(label, "%s", arr[2]);
+    glRasterPos2f(-0.85,-0.51);
+    drawString(label);
+    glPopMatrix();
+
+
+    if(muerto2)
+    {
+        //PLAYER 1
+    glPushMatrix();
+    glColor3f(0, 1, 0);
+    sprintf(label, "%s", arr[0]);
+    glRasterPos2f(-0.65,0.8);
+    drawString(label);
+    glPopMatrix();
+
+    //PLAYER 2
+    glPushMatrix();
+    glColor3f(1, 0, 0);
+    sprintf(label, "%s", arr[1]);
+    glRasterPos2f(0.55,0.8);
+    drawString(label);
+    glPopMatrix();
+    }
+    else
+    {
+           //PLAYER 1
+    glPushMatrix();
+    glColor3f(1, 0, 0);
+    sprintf(label, "%s", arr[1]);
+    glRasterPos2f(-0.65,0.8);
+    drawString(label);
+    glPopMatrix();
+
+    //PLAYER 2
+    glPushMatrix();
+    glColor3f(0, 1, 0);
+    sprintf(label, "%s", arr[0]);
+    glRasterPos2f(0.55,0.8);
+    drawString(label);
+    glPopMatrix();
+    }
+
+
+}
+
 
 void imprimir(void)
 {
@@ -408,41 +467,82 @@ static void disparo (double posx,double posy,double posz)
     glPopMatrix();
 }
 
-static void herido(double atacantex,double atacantez,double angulo_atacante, double victimax,double victimaz)
+static void vision_nublada(int heridas,double posx,double posy,double posz)
 {
-    bool esta_herido=false;
 
-    double distancia_camarax1=sin(angulo_atacante)*alcance_bala;
-    double distancia_camaraz1=cos(angulo_atacante)*alcance_bala;
-
-   /*for(double i=atacantex-0.3;i>atacantez-alcance_bala;i-=0.01)
-    {
-        for(double j=-i/21.74;j<i/21.74;j+=0.01)
-        {
-            float xDistance = j - perx;
-            float yDistance = i - perz;
-            if(sqrt(pow(xDistance, 2) + pow(yDistance, 2)) <0.5)
-            {
-                esta_herido=true;
-                break;
-            }
-        }
-    }*/
-
-
-
+if(heridas>=1)
+{
     glPushMatrix();
-    glColor3f(1,1,0);
-    glTranslatef(atacantex, objetoy+0.22, atacantez);
-    glRotated((angulo_atacante/(PI/180)),0,1,0);
-    glBegin(GL_QUADS);
-    glVertex3d(-0.03,0.05,-0.39);
-    glVertex3d(+0.03,0.05,-0.39);
-    glVertex3d(alcance_bala/21.74,0.05,-alcance_bala);
-    glVertex3d(-alcance_bala/21.74,0.05,-alcance_bala);
-    glEnd();
+    glColor3f(1,0,0);
+    glTranslatef(posx+0.11, posy+0.1, posz+0.2);
+    glScaled(1.5,1.5,1);
+    glutSolidSphere(0.05,50,50);
     glPopMatrix();
+}
 
+if(heridas>=2)
+{
+    glPushMatrix();
+    glColor3f(1,0,0);
+    glTranslatef(posx-0.12, posy+0.05, posz+0.2);
+    glScaled(1.5,1.5,1);
+    glutSolidSphere(0.05,50,50);
+    glPopMatrix();
+}
+
+if ( heridas==3)
+{
+        glPushMatrix();
+    glColor3f(1,0,0);
+    glTranslatef(posx, posy, posz+0.2);
+    glScaled(4,4,1);
+    glutSolidSphere(0.05,50,50);
+    glPopMatrix();
+}
+
+
+}
+static void disparo_herido()
+{
+    //jugador 1 dispara 2
+      if(dispara1)
+      {
+          herido2+=1;
+          if(herido2==3)
+          {
+              vida2-=1;
+              kills1+=1;
+              herido2=0;
+              objeto2x=objeto2x*-1;
+              objeto2z=-60-objeto2z;
+              if(vida2==0)
+              {
+                  muerto2=true;
+              }
+          }
+          dispara1=false;
+
+      }
+
+    //jugador 2 dispara 1
+      if(dispara2)
+      {
+
+          herido1+=1;
+          if(herido1==3)
+          {
+              vida1-=1;
+              kills2+=1;
+              herido1=0;
+              objeto1x=objeto1x*-1;
+              objeto1z=-60-objeto1z;
+              if(vida1==0)
+              {
+                  muerto1=true;
+              }
+          }
+        dispara2=false;
+      }
 }
 
 static void muneco2(void)
@@ -992,6 +1092,10 @@ static void brazos1(void)
         disparo(0,0.25,-0.43);
     }
 
+
+    vision_nublada(herido1,0,0.25,-0.43);
+
+
     glPopMatrix();
 
 }
@@ -1071,6 +1175,8 @@ static void brazos2(void)
     {
             disparo(0,0.25,-0.43);
     }
+
+    vision_nublada(herido2,0,0.25,-0.43);
 
     glPopMatrix();
 
@@ -1674,7 +1780,7 @@ static void menu(void)
     glPopMatrix();
 
 
-    imprimir();
+
 
     //Boton aceptar
     glPushMatrix();
@@ -1683,10 +1789,43 @@ static void menu(void)
     glutSolidCube(0.3);
     glPopMatrix();
 
+imprimir();
 
 
 
 
+}
+
+static void fin_juego(void)
+{
+    glClear(GL_COLOR_BUFFER_BIT);//limpia la pantalla
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glClearColor(0,0,0,0);
+
+    objeto1x=0;
+    objeto1z=3;
+    objetoy=0.88;//-7
+    objeto2x=0;
+    objeto2z=-63;//-53
+
+    //muneco1
+    glPushMatrix();
+    glScaled(0.5,0.5,1);
+    glTranslated(-1.2,-0.4,-3);
+    muneco1();
+    glPopMatrix();
+
+    //muneco2
+    glPushMatrix();
+
+    glRotated(180,0,1,0);
+    glScaled(0.5,0.5,1);
+    glTranslated(-1.2,-0.4,+63);
+    muneco2();
+    glPopMatrix();
+
+    imprimir_ganador();
 
 }
 static void display(void)
@@ -1695,10 +1834,22 @@ static void display(void)
     glMatrixMode(GL_MODELVIEW);
     glMatrixMode(GL_PROJECTION);
 
+    if(muerto1 || muerto2)
+    {
+        entra_juego=false;
+        fin_juego();
+    }
+
+
     if(entra_juego)
+    {
         juego();
+    }
     else
-    menu();
+    {
+        menu();
+    }
+
 
     glLoadIdentity();
     glFlush();
@@ -1765,7 +1916,9 @@ void Movimiento()
         angulogiro2-=velocidad_camara*(PI/180);
     }
 
+
     display();
+    disparo_herido();
 }
 
 void teclasCamara(unsigned char key, int x, int y)
@@ -1884,16 +2037,6 @@ void teclasCamara2(unsigned char key, int x, int y)
             camara2_izq=false;
 
             break;
-        case 's' :
-        case 'S' :
-            dispara1=false;
-            break;
-
-        case 'W' :
-        case 'w' :
-            dispara2=false;
-            break;
-
 
         case '8' :
             mueve2_arr=false;
@@ -1935,7 +2078,7 @@ void teclasEspeciales2(int key, int x, int y)
 
 void movmouse(int button, int state, int x, int y)
 {
-    if(!entra_juego)
+    if(!entra_juego && !muerto1 && !muerto2)
     {
         if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
         {
