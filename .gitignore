@@ -4,3 +4,4 @@
 *.layout
 *.docx
 !.cpp
+*.wav

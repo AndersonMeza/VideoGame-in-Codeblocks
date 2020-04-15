@@ -6,6 +6,7 @@
 #ifdef APPLE
 #include <GLUT/glut.h>
 #else
+#include <mmsystem.h>//libreria para sonido
 #include <GL/glut.h>
 #include <iostream>
 #endif
@@ -30,13 +31,33 @@ double objeto2x=0,objeto2z=-63;//-53
 double angulogiro1=0;
 double angulogiro2=-3.1;
 double distancia=0.1;
-double alcance_bala=20;
-double velocidad_camara=1;
-double velocidad_movimiento=0.1;
+double alcance_bala=5;
+double velocidad_camara=1.5;
+double velocidad_movimiento=0.15;
 double PI = 3.14159265358979323846;
 
 
 
+
+void sonido_pasos()
+{
+    PlaySound(TEXT("C:\\Users\\ANDERSON\\Desktop\\Ingeniería en Sistemas\\Nivel 5\\Graficación y animación\\Videojuego\\caminar.wav"),NULL,SND_ASYNC);
+}
+
+void sonido_disparo()
+{
+    PlaySound(TEXT("C:\\Users\\ANDERSON\\Desktop\\Ingeniería en Sistemas\\Nivel 5\\Graficación y animación\\Videojuego\\disparo.wav"),NULL,SND_ASYNC);
+}
+
+void sonido_golpe()
+{
+    PlaySound(TEXT("C:\\Users\\ANDERSON\\Desktop\\Ingeniería en Sistemas\\Nivel 5\\Graficación y animación\\Videojuego\\golpe.wav"),NULL,SND_ASYNC);
+}
+
+void sonido_musica()
+{
+    PlaySound(TEXT("C:\\Users\\ANDERSON\\Desktop\\Ingeniería en Sistemas\\Nivel 5\\Graficación y animación\\Videojuego\\musica.wav"),NULL,SND_ASYNC);
+}
 
 void inline drawString(char* s)
 {
@@ -154,7 +175,6 @@ void imprimir_ganador(void)
 
 }
 
-
 void imprimir(void)
 {
     glLoadIdentity();
@@ -242,6 +262,7 @@ void imprimir(void)
 
 static void prohibir_paso()
 {
+
     ///////////////////////////////////////////////////
     //paredes laterales
     if(objeto1x>=29.5)
@@ -378,14 +399,15 @@ static void prohibir_paso()
     //parte dentro casa 2
     if((objeto2z>=-60.4 && objeto2z<=-60) &&  !(objeto2x>=-1.75 && objeto2x<=1.75 ) )
     {
-        objeto1z=-60.5;
+        objeto2z=-60.5;
     }
 
     //parte atras casa 1
-    if(objeto1z>=4.5 )
+    if(objeto2z>=4.5 )
     {
         objeto2z=4.5;
     }
+
 
     //parte atras casa 2
     if(objeto2z<=-64.5 )
@@ -465,6 +487,8 @@ static void disparo (double posx,double posy,double posz)
     glTranslatef(posx, posy, posz);
     glutSolidCone(0.05,0.05,50,50);
     glPopMatrix();
+
+    sonido_disparo();
 }
 
 static void vision_nublada(int heridas,double posx,double posy,double posz)
@@ -502,12 +526,103 @@ if ( heridas==3)
 
 
 }
+
 static void disparo_herido()
 {
+
+    double recorrido1x=objeto1x,recorrido1z=objeto1z;
+    double recorrido2x=objeto2x,recorrido2z=objeto2z;
+    bool area1_muneco2=false;
+    bool area2_muneco1=false;
+
+
+    for(double i=0;i<=alcance_bala;i+=0.01)
+    {
+        //arriba
+        recorrido1z-=cos(angulogiro1)*i;
+        recorrido1x-=sin(angulogiro1)*i;
+
+
+        double recoizquix1=recorrido1x;
+        double recoizquiz1=recorrido1z;
+
+        double recoderx1=recorrido1x;
+        double recoderz1=recorrido1z;
+
+        for(double j=0; j<=i/21.74;j+=0.01)
+        {
+            //Izq
+
+            recoizquix1-=cos(angulogiro1)*j;
+            recoizquiz1+=sin(angulogiro1)*j;
+
+            if( sqrt(pow(objeto2x-recoizquix1, 2) + pow(objeto2z-recoizquiz1, 2)) <=0.5)
+            {
+                area1_muneco2=true;
+            }
+
+
+
+            //der
+            recoderx1+=cos(angulogiro1)*j;
+            recoderz1-=sin(angulogiro1)*j;
+
+            if(sqrt(pow(objeto2x-recoderx1 , 2) + pow(objeto2z-recoderz1, 2)) <=0.5)
+            {
+                area1_muneco2=true;
+            }
+        }
+
+
+    }
+
+
+    for(double i=0;i<=alcance_bala;i+=0.01)
+    {
+        //arriba
+        recorrido2z-=cos(angulogiro2)*i;
+        recorrido2x-=sin(angulogiro2)*i;
+
+
+        double recoizquix2=recorrido2x;
+        double recoizquiz2=recorrido2z;
+
+        double recoderx2=recorrido2x;
+        double recoderz2=recorrido2z;
+
+        for(double j=0; j<=i/21.74;j+=0.01)
+        {
+            //Izq
+
+            recoizquix2-=cos(angulogiro2)*j;
+            recoizquiz2+=sin(angulogiro2)*j;
+
+            if( sqrt(pow(objeto1x-recoizquix2, 2) + pow(objeto1z-recoizquiz2, 2)) <=0.5)
+            {
+                area2_muneco1=true;
+            }
+
+
+
+            //der
+            recoderx2+=cos(angulogiro2)*j;
+            recoderz2-=sin(angulogiro2)*j;
+
+            if(sqrt(pow(objeto1x-recoderx2 , 2) + pow(objeto1z-recoderz2, 2)) <=0.5)
+            {
+                area2_muneco1=true;
+            }
+        }
+
+
+    }
+
     //jugador 1 dispara 2
       if(dispara1)
       {
-          herido2+=1;
+        if(area1_muneco2)
+        {
+            herido2+=1;
           if(herido2==3)
           {
               vida2-=1;
@@ -520,29 +635,35 @@ static void disparo_herido()
                   muerto2=true;
               }
           }
-          dispara1=false;
+        }
+
 
       }
+      dispara1=false;
 
     //jugador 2 dispara 1
       if(dispara2)
       {
-
-          herido1+=1;
-          if(herido1==3)
+          if(area2_muneco1)
           {
+            herido1+=1;
+            if(herido1==3)
+            {
               vida1-=1;
               kills2+=1;
               herido1=0;
               objeto1x=objeto1x*-1;
               objeto1z=-60-objeto1z;
-              if(vida1==0)
-              {
+                if(vida1==0)
+                {
                   muerto1=true;
-              }
+                }
+            }
           }
-        dispara2=false;
+
+
       }
+      dispara2=false;
 }
 
 static void muneco2(void)
@@ -774,7 +895,8 @@ static void muneco2(void)
 
     if(dispara2)
     {
-            disparo(0,0.25,-0.43);
+        disparo(0,0.25,-0.43);
+
     }
 
     glPopMatrix();
@@ -1016,7 +1138,8 @@ static void muneco1(void)
 
     if(dispara1)
     {
-            disparo(0,0.25,-0.43);
+        disparo(0,0.25,-0.43);
+        disparo_herido();
     }
 
 
@@ -1090,6 +1213,7 @@ static void brazos1(void)
     if(dispara1)
     {
         disparo(0,0.25,-0.43);
+
     }
 
 
@@ -1174,6 +1298,7 @@ static void brazos2(void)
     if(dispara2)
     {
             disparo(0,0.25,-0.43);
+            disparo_herido();
     }
 
     vision_nublada(herido2,0,0.25,-0.43);
@@ -1671,7 +1796,6 @@ void dibujaCasa()
 
 }
 
-
 static void juego(void)
 {
 
@@ -1683,7 +1807,7 @@ static void juego(void)
     double distancia_camaraz2=cos(angulogiro2)*distancia;
 
 
-    glViewport(0,0,ancho,alto/2);
+    glViewport(0,alto/2,ancho,alto/2);
     glPushMatrix();
     gluLookAt(objeto1x,objetoy+0.4,objeto1z, objeto1x-distancia_camarax1,objetoy+0.4,objeto1z-distancia_camaraz1,0,1,0);
     brazos1();
@@ -1699,7 +1823,8 @@ static void juego(void)
 
     glPopMatrix();
 
-    glViewport(0,alto/2,ancho,alto/2);
+
+    glViewport(0,0,ancho,alto/2);
     glPushMatrix();
     gluLookAt(objeto2x,objetoy+0.4,objeto2z, objeto2x-distancia_camarax2,objetoy+0.4,objeto2z-distancia_camaraz2,0,1,0);
     brazos2();
@@ -1798,10 +1923,12 @@ imprimir();
 
 static void fin_juego(void)
 {
+
     glClear(GL_COLOR_BUFFER_BIT);//limpia la pantalla
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glClearColor(0,0,0,0);
+    glViewport(0,0,ancho,alto);
 
     objeto1x=0;
     objeto1z=3;
@@ -1828,28 +1955,31 @@ static void fin_juego(void)
     imprimir_ganador();
 
 }
+
 static void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glMatrixMode(GL_PROJECTION);
 
+
     if(muerto1 || muerto2)
     {
         entra_juego=false;
         fin_juego();
     }
-
-
-    if(entra_juego)
-    {
-        juego();
-    }
     else
     {
-        menu();
-    }
+        if(entra_juego)
+        {
+            juego();
+        }
+        else
+        {
 
+            menu();
+        }
+    }
 
     glLoadIdentity();
     glFlush();
@@ -1915,10 +2045,7 @@ void Movimiento()
     {
         angulogiro2-=velocidad_camara*(PI/180);
     }
-
-
     display();
-    disparo_herido();
 }
 
 void teclasCamara(unsigned char key, int x, int y)
@@ -1965,21 +2092,25 @@ void teclasCamara(unsigned char key, int x, int y)
         case '8' :
             mueve2_baj=false;
             mueve2_arr=true;
+            sonido_pasos();
             break;
 
         case '5' :
             mueve2_arr=false;
             mueve2_baj=true;
+            sonido_pasos();
             break;
 
         case '4' :
             mueve2_der=false;
             mueve2_izq=true;
+            sonido_pasos();
             break;
 
         case '6' :
             mueve2_izq=false;
             mueve2_der=true;
+            sonido_pasos();
             break;
     }
     Movimiento();
@@ -1995,18 +2126,22 @@ void teclasEspeciales(int key, int x, int y)
         case GLUT_KEY_UP :
             mueve1_baj=false;
             mueve1_arr=true;
+            sonido_pasos();
             break;
         case GLUT_KEY_DOWN :
             mueve1_arr=false;
             mueve1_baj=true;
+            sonido_pasos();
             break;
         case GLUT_KEY_LEFT :
             mueve1_der=false;
             mueve1_izq=true;
+            sonido_pasos();
             break;
         case GLUT_KEY_RIGHT :
             mueve1_izq=false;
             mueve1_der=true;
+            sonido_pasos();
             break;
     }
     Movimiento();
@@ -2148,13 +2283,13 @@ int main(int argc, char *argv[])
     glutCreateWindow("Figura 3d");
     glClearColor(0,0.7,1,0);
     glutDisplayFunc(display);
-
     glutSpecialFunc(teclasEspeciales);
     glutSpecialUpFunc(teclasEspeciales2);
     glutKeyboardFunc(teclasCamara);
     glutKeyboardUpFunc(teclasCamara2);
     glutMouseFunc(movmouse);
     glutIdleFunc(Movimiento);
+    sonido_musica();
 
     glEnable(GL_DEPTH_TEST);
 
